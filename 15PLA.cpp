@@ -13,22 +13,23 @@
 //vec w(4);
 
 //w = 0 and take sign(0) = -1
-double w[4];
+double w[5];
 int correct_count = 0;
 
 struct xy{
-  double x[4];
+  double x[5];
   bool y;
-  xy(double a, double b, double c, double d, bool bl){
+  xy(double a, double b, double c, double d, double e, bool bl){
     x[0] = a;
     x[1] = b;
     x[2] = c;
     x[3] = d;
+    x[4] = e;
     y = bl;
   }
   bool check_sign(){
     double ans = 0;
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < 5; i++)
       ans += w[i] * x[i];
     bool anssign = (ans>0)?true:false;
     return (anssign && y) || (!anssign && !y);
@@ -36,10 +37,10 @@ struct xy{
   void correct_mistake(){
     correct_count++;
     if(y){//new w = w + x
-      for(int i = 0; i < 4; i++)
+      for(int i = 0; i < 5; i++)
 	w[i] += x[i];
     } else {//w = w - x;
-      for(int i = 0; i < 4; i++){
+      for(int i = 0; i < 5; i++){
 	w[i] -= x[i];
       }
     }
@@ -54,10 +55,10 @@ int main(){
     printf("file open error\n");
   }
   std::vector<struct xy> data;
-  double x[4];  int y;
+  double x[5];  int y;
   
-  while(fscanf(fin, "%lf %lf %lf %lf %d", &x[0], &x[1], &x[2], &x[3], &y) == 5){
-    xy temp(x[0], x[1], x[2], x[3], (y > 0));
+  while(fscanf(fin, "%lf %lf %lf %lf %d", &x[0], &x[1], &x[2], &x[3],&y) == 5){
+    xy temp(x[0], x[1], x[2], x[3], 1, (y > 0));// 1 -> 平移b
     data.push_back(temp);
   }
 
@@ -67,16 +68,16 @@ int main(){
   while(nomistake < size){//not the same sign-> mistake
     if(!data[nowindex].check_sign()){
       data[nowindex].correct_mistake();
-            printf("stop at mistake %d\n", nomistake);
-            nomistake = 1;
+      printf("stop at mistake %d\n", nomistake);
+      nomistake = 1;
     } else {
-            nomistake++;
+      nomistake++;
     }
 
-    //printf("now nomistake = %d\n", nomistake);
+    printf("now nomistake = %d\n", nomistake);
     if(++nowindex >= size)
       nowindex -= size;
   }
   printf("correct_count = %d\n", correct_count);
-  printf("final w = (%lf, %lf, %lf, %lf)\n", w[0], w[1], w[2], w[3]);
+  printf("final w = (%lf, %lf, %lf, %lf, %lf)\n", w[0], w[1], w[2], w[3], w[4]);
 }

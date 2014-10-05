@@ -30,10 +30,10 @@ struct xy{
     correct_count++;
     if(y){//new w = w + x
       for(int i = 0; i < 5; i++)
-	w[i] += x[i];
+	w[i] += 0.5 * x[i];
     } else {//w = w - x;
       for(int i = 0; i < 5; i++){
-	w[i] -= x[i];
+	w[i] -= 0.5 * x[i];
       }
     }
     //    printf("now w = (%lf, %lf, %lf, %lf)\n", w[0], w[1], w[2], w[3]);
