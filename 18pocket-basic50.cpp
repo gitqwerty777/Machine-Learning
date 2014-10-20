@@ -6,7 +6,18 @@
 #include <string.h>
 
 double w[5];
-double nw[5];//new w
+
+struct wvec{
+  wvec(double* inw, int mn){
+    for(int i = 0; i < 5; i++)
+      w[i] = inw[i];
+    misnum = mn;
+  }
+  double w[5];
+  int misnum;
+};
+
+std::vector<wvec> warr;
 long long correct_count = 0;
 std::vector<struct xy> data;
 int size;//data size
@@ -41,20 +52,15 @@ struct xy{
 	w[i] = w[i] - x[i];
     }
   }
-  void record_mistake_num(){
+  void record_w(){
     int mn = 0;
     for(int i = 0; i < size; i++){
       if(!data[i].check_sign())
 	mn++;
     }
-  if(on > nn)
-    memcpy(w, nw, sizeof(w));
-}
+    warr.push_back(wvec(w, mn));
+  }
 };
-
-
-
-
 
 int main(){
   FILE *fin = fopen("pocket_hw1_18_train.dat", "r");
@@ -71,41 +77,32 @@ int main(){
   int selected;  int nowindex;
   long testnum = 0;
   long errornum = 0; // test correct
-  bool* nomistake = (bool*)malloc(sizeof(bool) * size);
-  bool cantupdate = false;
-  for(int i = 0; i < 2000; i++){
-    srand(time(NULL)+i);
+  for(int t = 0; t < 2000; t++){
+    srand(time(NULL)+t*t*9527);
     int update = 0;
-    cantupdate = false;
+    warr.clear();
     w[0] = w[1] = w[2] = w[3] = w[4] = 0;
-    for(int j = 0; j < size; j++)
-      nomistake[j] = false;
     while(update < 50){
       nowindex = rand() % size;
-      int temp = nowindex;
-      while(nomistake[nowindex] || data[nowindex].check_sign()){//if all no mistake, loop
-	nomistake[nowindex] = true;
-	if(++nowindex >= size)
-	  nowindex -= size;
-	if(nowindex == temp){
-	  cantupdate = true;
-	  break;
-	}
-      }
-      if(cantupdate)
-	break;
+      while(data[nowindex].check_sign())//if all no mistake, loop
+	nowindex = rand() % size;
       data[nowindex].correct_mistake();
-      if(data[nowindex].choose_better_w()){
-	update++;
-	for(int j = 0; j < size; j++)
-	  nomistake[j] = false;
-	nomistake[nowindex] = true;
-      } else {
-	nomistake[nowindex] = true;
-      }
+      data[nowindex].record_w();
+      update++;
     }
-    printf("w = [%lf, %lf, %lf, %lf, %lf]\n", w[0], w[1], w[2], w[3], w[4]);
 
+    //find minimum
+    int minmn = size;
+    int minindex = 0;
+    for(int i = 0; i < 50; i++)
+      if(warr[i].misnum < minmn){
+	minmn = warr[i].misnum;
+	minindex = i;
+      }
+    for(int i = 0; i < 5; i++)
+      w[i] = warr[minindex].w[i];
+    printf("w = [%lf, %lf, %lf, %lf, %lf]\n", w[0], w[1], w[2], w[3], w[4]);
+    
     //test
     FILE* ftest = fopen("pocket_hw1_18_test.dat", "r");
     while(fscanf(ftest, "%lf %lf %lf %lf %d", &x[0], &x[1], &x[2], &x[3], &y) == 5){
